@@ -25,7 +25,7 @@ df3['half'] = np.where(df3['날짜'].astype(str).str[5:7]=='01', '1st half', '2n
 df3['year'] = df3['날짜'].astype(str).str[:4]
 df4 = df3.pivot_table(values='change', index='year', columns='half').reset_index()
 df4 = df4[1:]
-df4
+
 fig = px.scatter(df4, x='2nd half', y='1st half', color='year', text='year', width=800, height=800)
 fig.update_traces(textposition='bottom right', textfont_size=8)
 fig.update_xaxes(tickformat=',.1%')
