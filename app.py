@@ -42,7 +42,7 @@ fig.add_vline(x=0, line_width=0.5)
 fig.add_hline(y=0, line_width=0.5)
 #fig.show()
 
-st.plotly_chart(fig)
+st.plotly_chart(fig, unsafe_allow_html=True)
 
 
 # figure 2
@@ -62,7 +62,7 @@ fig_1.add_vline(x=1, line_width=0.5)
 fig_1.add_hline(y=0, line_width=0.5)
 #fig_1.show()
 
-st.plotly_chart(fig_1)
+st.plotly_chart(fig_1, unsafe_allow_html=True)
 
 
 # figure 3
@@ -103,4 +103,4 @@ fig_2.add_vline(x=1, line_width=0.5)
 fig_2.add_hline(y=0, line_width=0.5)
 #fig_2.show()
 
-st.plotly_chart(fig_2)
+st.plotly_chart(fig_2, unsafe_allow_html=True)
