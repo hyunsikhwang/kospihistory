@@ -23,6 +23,10 @@ st.subheader("Figure 1")
 
 df1 = df.reset_index()[['날짜', '종가']].copy()
 df2 = df1[~df1['날짜'].dt.strftime('%Y-%m').duplicated()].copy()
+
+# 가장 최근 날짜의 레코드를 추가해서 가장 최근 반기가 종료되기 전에도 현재 기준 수익률을 확인할 수 있도록 함
+df2 = pd.concat([df2, df1.tail(1)])
+
 df3 = df2[(df2['날짜'].astype(str).str[5:7]).isin(['01', '07'])].copy()
 df3['change'] = df3['종가'].pct_change(periods=1, axis=0)
 df3['change'] = df3['change'].shift(-1)
