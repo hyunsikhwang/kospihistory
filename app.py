@@ -31,9 +31,10 @@ df3 = pd.concat([df3, df1.tail(1)])
 df3['change'] = df3['종가'].pct_change(periods=1, axis=0)
 df3['change'] = df3['change'].shift(-1)
 df3['change'] = df3['change'].fillna(0)
-#df3 = df3[1:]
 df3['half'] = np.where(df3['날짜'].astype(str).str[5:7]=='01', '1st half', '2nd half')
 df3['year'] = df3['날짜'].astype(str).str[:4]
+df3 = df3[:-1]
+
 df4 = df3.pivot_table(values='change', index='year', columns='half').reset_index()
 df4 = df4[1:]
 
