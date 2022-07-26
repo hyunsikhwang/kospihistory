@@ -5,3 +5,6 @@ pykrx
 bs4
 matplotlib
 plotly
+statsmodels
+requests
+json
