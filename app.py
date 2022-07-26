@@ -5,6 +5,8 @@ from pytz import timezone, utc
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import requests
+import json
 
 
 st.header("KOSPI Analysis Charts")
@@ -70,42 +72,39 @@ fig_1.add_hline(y=0, line_width=0.5)
 st.plotly_chart(fig_1, unsafe_allow_html=True)
 
 
-# figure 3
+# figure 3 - CPI vs PER
 
-st.subheader("Figure 3")
+st.subheader("Figure 3 - CPI vs PER")
+
+#소비자물가지수
+ECOS_API_KEY = st.secrets["ECOS_API_KEY"]
+url = 'http://ecos.bok.or.kr/api/StatisticSearch/{ECOS_API_KEY}/json/kr/1/10000/901Y009/M/199901/202207/0'
+
+res = requests.get(url)
+resJsn = json.loads(res.text)['StatisticSearch']['row']
+df_cpi = pd.DataFrame(resJsn)
+
+df_cpi['DATA_VALUE'] = df_cpi['DATA_VALUE'].astype(float)
+df_cpi['DATA_VALUE_pct'] = df_cpi['DATA_VALUE'].pct_change(periods=12)
+#df_cpi['TIME'] = pd.to_datetime(df_cpi['TIME'], format='%Y%m', errors='coerce').dropna()
+df_cpi['TIME'] = df_cpi['TIME'].astype(str)
 
 df_111 = df_1.reset_index()[['날짜', '종가', 'PER', 'PBR', '배당수익률']]
-df_112 = df_111[(df_111['날짜']>='2003-01-01')].reset_index(drop=True)
+df_1111 = df_111[~df_111['날짜'].dt.strftime('%Y-%m').duplicated()].copy()
+df_1111['날짜'] = df_1111['날짜'].astype(str).str[:7].str.replace('-', '')
 
-df_113 = df_112.set_index('날짜').resample('2Q', closed='left').agg(['min','max']).reset_index()
-df_113.columns = np.where(df_113.columns.get_level_values(1) != '', df_113.columns.get_level_values(0) + '_' + df_113.columns.get_level_values(1), df_113.columns.get_level_values(0))
-#display(df_113)
+df_cpi_per = pd.merge(df_cpi, df_1111, how='left', left_on='TIME', right_on='날짜')[['TIME', 'DATA_VALUE_pct', 'PER']].dropna()
+df_cpi_per = df_cpi_per[(df_cpi_per['DATA_VALUE_pct'] > 0)]
+df_cpi_per['TIME'] = df_cpi_per['TIME'].astype(str).str[:7]
+df_cpi_per['year'] = df_cpi_per['TIME'].str[:4]
 
-df_114 = df_111[~df_111['날짜'].dt.strftime('%Y-%m').duplicated()].copy()
-df_115 = df_114[(df_114['날짜'].astype(str).str[5:7]).isin(['01', '07'])].copy()
+fig_cpi_per = px.scatter(df_cpi_per, x='DATA_VALUE_pct', y='PER', text='year', trendline="ols", trendline_options=dict(log_x=True),
+                         width=800, height=800, trendline_scope="overall", trendline_color_override="red", color='year')
+fig_cpi_per.update_traces(textposition="top right")
+fig_cpi_per.update_layout(
+    font=dict(
+        size=7
+    )
+)
 
-df_116 = pd.merge_asof(df_115, df_113, on='날짜')[['날짜', '종가', 'PER', 'PBR', '배당수익률', '종가_min', '종가_max']][1:]
-df_116['종가_min'] = df_116['종가_min'].shift(-1)
-df_116['종가_max'] = df_116['종가_max'].shift(-1)
-df_116['상승'] = df_116['종가_max'] / df_116['종가'] - 1
-df_116['하락'] = df_116['종가_min'] / df_116['종가'] - 1
-df_116['변동'] = np.where(df_116['상승'].abs() > df_116['하락'].abs(), df_116['상승'], df_116['하락'])
-df_116['updn'] = np.where(df_116['변동'] == df_116['상승'], 'up', 'dn')
-df_116 = df_116.fillna(0)
-df_116['half'] = np.where(df_116['날짜'].astype(str).str[5:7]=='01', '1st half', '2nd half')
-df_116['year'] = df_116['날짜'].astype(str).str[:4]
-df_116['year_half'] = df_116['year'] + ' ' + df_2['half']
-df_116['year_half'] = df_116['year_half'].str.replace(' half', '')
-
-#display(df_116)
-
-fig_2 = px.scatter(df_116, x='PBR', y='변동', color='year_half', text='year_half', width=600, height=800)
-fig_2.update_traces(textposition='bottom right', textfont_size=8)
-fig_2.update_xaxes(tickformat=',.2f')
-fig_2.update_yaxes(tickformat=',.1%')
-fig_2.update_layout(showlegend=False)
-fig_2.add_vline(x=1, line_width=0.5)
-fig_2.add_hline(y=0, line_width=0.5)
-#fig_2.show()
-
-st.plotly_chart(fig_2, unsafe_allow_html=True)
+st.plotly_chart(fig_cpi_per, unsafe_allow_html=True)
