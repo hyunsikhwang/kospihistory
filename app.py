@@ -78,7 +78,7 @@ st.subheader("Figure 3 - CPI vs PER")
 
 #소비자물가지수
 ECOS_API_KEY = st.secrets["ECOS_API_KEY"]
-url = 'http://ecos.bok.or.kr/api/StatisticSearch/{ECOS_API_KEY}/json/kr/1/10000/901Y009/M/199901/202207/0'
+url = f'http://ecos.bok.or.kr/api/StatisticSearch/{ECOS_API_KEY}/json/kr/1/10000/901Y009/M/199901/202207/0'
 
 res = requests.get(url)
 resJsn = json.loads(res.text)['StatisticSearch']['row']
