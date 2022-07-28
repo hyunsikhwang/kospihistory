@@ -98,7 +98,7 @@ df_cpi_per = df_cpi_per[(df_cpi_per['DATA_VALUE_pct'] > 0)]
 df_cpi_per['TIME'] = df_cpi_per['TIME'].astype(str).str[:7]
 df_cpi_per['year'] = df_cpi_per['TIME'].str[:4]
 
-fig_cpi_per = px.scatter(df_cpi_per, x='DATA_VALUE_pct', y='PER', text='year', trendline="ols", trendline_options=dict(log_x=True),
+fig_cpi_per = px.scatter(df_cpi_per, x='DATA_VALUE_pct', y='PER', text='TIME', trendline="ols", trendline_options=dict(log_x=True),
                          width=800, height=800, trendline_scope="overall", trendline_color_override="red", color='year')
 fig_cpi_per.update_traces(textposition="top right")
 fig_cpi_per.update_layout(
