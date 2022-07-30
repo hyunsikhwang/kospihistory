@@ -22,7 +22,7 @@ tab1, tab2, tab3 = st.tabs(["Fig1", "Fig2", "Fig3"])
 
 # figure 1
 
-with tab2:
+with tab1:
     st.subheader("Figure 1")
 
     df1 = df.reset_index()[['날짜', '종가']].copy()
